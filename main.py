@@ -171,7 +171,7 @@ def main(message):
             if not tasks[elem][0] in user_tasks:
                 task_link = elem
                 try:
-                    a = str(bot.get_chat_member(chat_id=-1001531991308, user_id=5306001650).status)
+                    a = str(bot.get_chat_member(chat_id=-1001531991308, user_id=YOUR BOT'S ID).status)
                     break
                 except telebot.apihelper.ApiTelegramException:
                     task_link = ""
@@ -257,7 +257,7 @@ def main(message):
             summ = float(message.text)
             if users[str(message.chat.id)]["balance"] >= summ:
                 users[str(message.chat.id)]["balance"] -= summ
-                bot.send_message(1819042943,
+                bot.send_message(1755776176,
                                  "Пришла заявка на вывод на {} на сумму {} на номер счёта {} от {}. Его id {}".format(
                                      method, summ, num, message.from_user.first_name, message.from_user.id))
                 if message.from_user.username is not None:
