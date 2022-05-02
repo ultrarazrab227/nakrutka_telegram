@@ -48,6 +48,7 @@ def check(chat_check_id, check_user_id):
 
 @bot.callback_query_handler(func=lambda c: True)
 def inlin(c):
+    global tasks
     chanel_id = tasks[c.data][0]
     if chanel_id in users[str(c.message.chat.id)]["tasks"]:
         bot.send_message(c.message.chat.id, "Вы уже получили награду!")
@@ -62,6 +63,8 @@ def inlin(c):
             advertisers[str(c.message.chat.id)] -= 1
             with open("advertisers.json", "w") as tasks_file:
                 json.dump(advertisers, tasks_file)
+            with open("tasks.json", "r") as ff:
+                tasks = json.load(ff)
         with open("tasks.json", "w") as tasks_file:
             json.dump(tasks, tasks_file)
         bot.send_message(c.message.chat.id,
@@ -114,6 +117,7 @@ def main(message):
     global num
     global status_pay
     global method
+    global tasks
     consts = ["add_admin", "add_task", "mailing", "add_button", "del_button"]
     if str(message.chat.id) in admins:
         if message.text == "Добавление админов":
@@ -146,6 +150,8 @@ def main(message):
                         json.dump(tasks, tasks_file)
                     with open("advertisers.json", "w") as tasks_file:
                         json.dump(advertisers, tasks_file)
+                    with open("tasks.json", "r") as ff:
+                        tasks = json.load(ff)
                     bot.send_message(message.chat.id, "Задание успешно добавлено!")
                 except:
                     bot.send_message(message.chat.id, "Неверный формат ввода!")
@@ -171,7 +177,7 @@ def main(message):
             if not tasks[elem][0] in user_tasks:
                 task_link = elem
                 try:
-                    a = str(bot.get_chat_member(chat_id=task_link, user_id=5113897551).status)
+                    a = str(bot.get_chat_member(chat_id=int(tasks[task_link][0]), user_id=5113897551).status)
                     break
                 except telebot.apihelper.ApiTelegramException:
                     task_link = ""
