@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 import json
 
-bot = telebot.TeleBot("YOUR TOKEN")
+bot = telebot.TeleBot("5113897551:AAHrjwo-piDc7OBWs9OI9eu2FON0B-LkZkw")
 
 main_markup = types.ReplyKeyboardMarkup(row_width=2)
 main_markup.add('▶️ Получить задание', '📈 Рекламодателю', '💵 Баланс', '💸 Вывод 💸', 'Информация о боте',
@@ -171,7 +171,7 @@ def main(message):
             if not tasks[elem][0] in user_tasks:
                 task_link = elem
                 try:
-                    a = str(bot.get_chat_member(chat_id=-1001531991308, user_id=YOUR BOT'S ID).status)
+                    a = str(bot.get_chat_member(chat_id=-1001531991308, user_id=5113897551).status)
                     break
                 except telebot.apihelper.ApiTelegramException:
                     task_link = ""
@@ -194,7 +194,7 @@ def main(message):
                                           "(Не раскручиваем 18+🔞)", reply_markup=ads)
     elif message.text == "👥 Рефералы":
         bot.send_message(message.chat.id,
-                         "👤 Ваша реферальная ссылка:\n\n https://t.me/dascxsaxcxbot?start={}\n\n👥 Кол-во "
+                         "👤 Ваша реферальная ссылка:\n\n https://t.me/Actioncore_bot?start={}\n\n👥 Кол-во "
                          "рефералов:{}\n💸 Заработок с рефералов : {}₽".format(message.chat.id, len(users[str(
                              message.chat.id)]["referals"]), len(users[str(
                              message.chat.id)]["referals"]) * 0.02))
