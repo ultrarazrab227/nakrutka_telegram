@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 import json
 
-bot = telebot.TeleBot("TOKEN")
+bot = telebot.TeleBot("5113897551:AAHrjwo-piDc7OBWs9OI9eu2FON0B-LkZkw")
 
 main_markup = types.ReplyKeyboardMarkup(row_width=2)
 main_markup.add('▶️ Получить задание', '📈 Рекламодателю', '💵 Баланс', '💸 Вывод 💸', 'Информация о боте',
@@ -171,7 +171,7 @@ def main(message):
             if not tasks[elem][0] in user_tasks:
                 task_link = elem
                 try:
-                    a = str(bot.get_chat_member(chat_id=-1001531991308, user_id=5113897551).status)
+                    a = str(bot.get_chat_member(chat_id=task_link, user_id=5113897551).status)
                     break
                 except telebot.apihelper.ApiTelegramException:
                     task_link = ""
@@ -261,7 +261,7 @@ def main(message):
                                  "Пришла заявка на вывод на {} на сумму {} на номер счёта {} от {}. Его id {}".format(
                                      method, summ, num, message.from_user.first_name, message.from_user.id))
                 if message.from_user.username is not None:
-                    bot.send_message(1819042943, "Его username @" + message.from_user.username)
+                    bot.send_message(1755776176, "Его username @" + message.from_user.username)
                 bot.send_message(message.chat.id, "Заявка на вывод была успешно отправлена!", reply_markup=main_markup)
                 method = None
                 status_pay = 0
