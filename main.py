@@ -25,8 +25,8 @@ with open("advertisers.json", "r") as us_file:
 with open("tasks.json", "r") as ff:
     tasks = json.load(ff)
 
-with open('admins.txt', 'r') as fff:
-    admins = fff.readlines()
+admins = open("admins.txt", 'r')
+admins = admins.read().splitlines()
 
 status = None
 num = 0
