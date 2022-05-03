@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 import json
 
-bot = telebot.TeleBot("5113897551:AAHrjwo-piDc7OBWs9OI9eu2FON0B-LkZkw")
+bot = telebot.TeleBot("YOUR TOKEN")
 
 main_markup = types.ReplyKeyboardMarkup(row_width=2)
 main_markup.add('▶️ Получить задание', '📈 Рекламодателю', '💵 Баланс', '💸 Вывод 💸', 'Информация о боте',
