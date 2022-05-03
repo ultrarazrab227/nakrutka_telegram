@@ -163,15 +163,20 @@ def main(message):
             elif status == "add_task":
                 try:
                     task_mas = message.text.split()
-                    tasks[task_mas[0]] = [task_mas[1], 0, task_mas[2]]
-                    advertisers[str(message.chat.id)] = [task_mas[3]]
-                    with open("tasks.json", "w") as tasks_file:
-                        json.dump(tasks, tasks_file)
-                    with open("advertisers.json", "w") as tasks_file:
-                        json.dump(advertisers, tasks_file)
-                    with open("tasks.json", "r") as ff:
-                        tasks = json.load(ff)
-                    bot.send_message(message.chat.id, "Задание успешно добавлено!")
+                    if task_mas[0] in tasks:
+                        bot.send_message(message.chat.id, "Это задание уже добавлено!")
+                        status = None
+                        return
+                    else:
+                        tasks[task_mas[0]] = [task_mas[1], 0, task_mas[2]]
+                        advertisers[str(message.chat.id)] = [task_mas[3]]
+                        with open("tasks.json", "w") as tasks_file:
+                            json.dump(tasks, tasks_file)
+                        with open("advertisers.json", "w") as tasks_file:
+                            json.dump(advertisers, tasks_file)
+                        with open("tasks.json", "r") as ff:
+                            tasks = json.load(ff)
+                        bot.send_message(message.chat.id, "Задание успешно добавлено!")
                 except:
                     bot.send_message(message.chat.id, "Неверный формат ввода!")
                     status = None
