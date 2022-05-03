@@ -114,6 +114,24 @@ def main(message):
     if message.chat.id != message.from_user.id:
         return
     # админка
+    if not str(message.chat.id) in users:
+        users[str(message.chat.id)] = {
+            "balance": 0,
+            "withdrawn": 0,
+            "tasks": [],
+            "referals": []
+        }
+        # если реферал
+        if " " in message.text:
+            referrer_candidate = message.text.split()[1]
+            if str(referrer_candidate) in users:
+                return
+            try:
+                referrer = int(referrer_candidate)
+                users[str(referrer)]["referals"].append(referrer)
+                users[str(referrer)]["balance"] += 0.02
+            except ValueError:
+                pass
     global status
     global num
     global status_pay
