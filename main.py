@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 import json
 
-bot = telebot.TeleBot("YOUR TOKEN")
+bot = telebot.TeleBot("5113897551:AAHrjwo-piDc7OBWs9OI9eu2FON0B-LkZkw")
 
 main_markup = types.ReplyKeyboardMarkup(row_width=2)
 main_markup.add('▶️ Получить задание', '📈 Рекламодателю', '💵 Баланс', '💸 Вывод 💸', 'Информация о боте',
@@ -20,8 +20,7 @@ admin_markup.add('Добавление админов', 'Добавить зад
 with open("users.json", "r") as us_file:
     users = json.load(us_file)
 
-with open("advertisers.json", "r") as us_file:
-    advertisers = json.load(us_file)
+
 
 with open("tasks.json", "r") as ff:
     tasks = json.load(ff)
@@ -61,11 +60,9 @@ def inlin(c):
         tasks[c.data][1] += 1
         if tasks[c.data][1] >= int(tasks[c.data][2]):
             tasks.pop(c.data)
-            advertisers[str(c.message.chat.id)] -= 1
-            with open("advertisers.json", "w") as tasks_file:
-                json.dump(advertisers, tasks_file)
-            with open("tasks.json", "r") as ff:
-                tasks = json.load(ff)
+            users[str(c.message.chat.id)]["or_tasks"] -= 1
+            with open("users.json", "w") as json_file:
+                json.dump(users, json_file)
         with open("tasks.json", "w") as tasks_file:
             json.dump(tasks, tasks_file)
         bot.send_message(c.message.chat.id,
@@ -88,6 +85,7 @@ def send_welcome(message):
             "balance": 0,
             "withdrawn": 0,
             "tasks": [],
+            "or_tasks": 0,
             "referals": []
         }
         # если реферал
@@ -113,12 +111,12 @@ def send_welcome(message):
 def main(message):
     if message.chat.id != message.from_user.id:
         return
-    # админка
     if not str(message.chat.id) in users:
         users[str(message.chat.id)] = {
             "balance": 0,
             "withdrawn": 0,
             "tasks": [],
+            "or_tasks": 0,
             "referals": []
         }
         # если реферал
@@ -138,6 +136,7 @@ def main(message):
     global method
     global tasks
     consts = ["add_admin", "add_task", "mailing", "add_button", "del_button"]
+    # админка
     if str(message.chat.id) in admins:
         if message.text == "Добавление админов":
             bot.send_message(message.chat.id, "Пришлите ID нового админа.")
@@ -169,13 +168,11 @@ def main(message):
                         return
                     else:
                         tasks[task_mas[0]] = [task_mas[1], 0, task_mas[2]]
-                        advertisers[str(message.chat.id)] = [task_mas[3]]
+                        users[task_mas[3]]["or_tasks"] += 1
+                        with open("users.json", "w") as json_file:
+                            json.dump(users, json_file)
                         with open("tasks.json", "w") as tasks_file:
                             json.dump(tasks, tasks_file)
-                        with open("advertisers.json", "w") as tasks_file:
-                            json.dump(advertisers, tasks_file)
-                        with open("tasks.json", "r") as ff:
-                            tasks = json.load(ff)
                         bot.send_message(message.chat.id, "Задание успешно добавлено!")
                 except:
                     bot.send_message(message.chat.id, "Неверный формат ввода!")
@@ -318,8 +315,8 @@ def main(message):
                          "Новости а боте и а новых заданиях в нашем канале: @action_core_news\n",
                          reply_markup=main_markup)
     elif message.text == "📊 Активные задачи":
-        if str(message.chat.id) in advertisers:
-            bot.send_message(message.chat.id, "У вас есть {} задач.".format(advertisers[str(message.chat.id)] + 1),
+        if users[str(message.chat.id)]["or_task"] > 0:
+            bot.send_message(message.chat.id, "У вас есть {} задач.".format(users[str(message.chat.id)]["or_task"]),
                              reply_markup=main_markup)
         else:
             bot.send_message(message.chat.id, "У вас нет активных задач.", reply_markup=main_markup)
