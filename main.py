@@ -315,8 +315,8 @@ def main(message):
                          "Новости а боте и а новых заданиях в нашем канале: @action_core_news\n",
                          reply_markup=main_markup)
     elif message.text == "📊 Активные задачи":
-        if users[str(message.chat.id)]["or_task"] > 0:
-            bot.send_message(message.chat.id, "У вас есть {} задач.".format(users[str(message.chat.id)]["or_task"]),
+        if users[str(message.chat.id)]["or_tasks"] > 0:
+            bot.send_message(message.chat.id, "У вас есть {} задач.".format(users[str(message.chat.id)]["or_tasks"]),
                              reply_markup=main_markup)
         else:
             bot.send_message(message.chat.id, "У вас нет активных задач.", reply_markup=main_markup)
