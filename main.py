@@ -245,7 +245,7 @@ def main(message):
                     "skipped_tasks"]:
                     task_link = elem
                     try:
-                        a = str(bot.get_chat_member(chat_id=int(tasks[task_link][0]), user_id=5355339065).status)
+                        a = str(bot.get_chat_member(chat_id=int(tasks[task_link][0]), user_id=5113897551).status)
                         break
                     except telebot.apihelper.ApiTelegramException:
                         task_link = ""
@@ -268,7 +268,7 @@ def main(message):
                                               "(Не раскручиваем 18+🔞)", reply_markup=ads)
         elif message.text == "👥 Рефералы":
             bot.send_message(message.chat.id,
-                             "👤 Ваша реферальная ссылка:\n\nt.me/nakrutkamegasuperbot?start={}\n\n👥 Кол-во "
+                             "👤 Ваша реферальная ссылка:\n\nhttps://t.me/Actioncore_bot?start={}\n\n👥 Кол-во "
                              "рефералов: {}\n💸 Заработок с рефералов : {}₽".format(message.chat.id, len(users[str(
                                  message.chat.id)]["referals"]), len(users[str(
                                  message.chat.id)]["referals"]) * 0.02))
