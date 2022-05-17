@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
+# !/usr/bin/python3.8.10
 import telebot
 from telebot import types
 import json
 
-bot = telebot.TeleBot("")
+bot = telebot.TeleBot("TOKEN")
 
 main_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
 main_markup.add('▶️ Получить задание', '📈 Рекламодателю', '💵 Баланс', '💸 Вывод 💸', 'Информация о боте',
                 '👥 Рефералы')
 
 payment = types.ReplyKeyboardMarkup(resize_keyboard=True)
-payment.add('Qiwi', 'ЮMoney', 'Банковская карта', '📈Статистика')
+payment.add('Qiwi', 'ЮMoney', 'Банковская карта')
 
 ads = types.ReplyKeyboardMarkup(resize_keyboard=True)
 ads.add('📊 Активные задачи')
 
 admin_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-admin_markup.add('Добавление админов', 'Добавить задание', 'Рассылка')
+admin_markup.add('Добавление админов', 'Добавить задание', 'Рассылка', '📈Статистика')
 with open("users.json", "r") as us_file:
     users = json.load(us_file)
 
@@ -50,33 +51,42 @@ def inlin(c):
     try:
         global tasks
         global task_link
-        if c.data == "check":
-            chanel_id = tasks[task_link][0]
+        if c.data == "skip":
+            if not tasks[task_link][0] in users[str(str(c.message.chat.id))]["skipped_tasks"] and not \
+                    tasks[task_link][0] in users[str(str(c.message.chat.id))]["tasks"]:
+                users[str(c.message.chat.id)]["skipped_tasks"].append(tasks[task_link][0])
+                bot.send_message(c.message.chat.id, "Задание успешно пропущено!")
+            else:
+                bot.send_message(c.message.chat.id, "Вы уже выполнили/пропустили это задание!")
+        else:
+            chanel_id = tasks[c.data][0]
             if chanel_id in users[str(c.message.chat.id)]["tasks"]:
                 bot.send_message(c.message.chat.id, "Вы уже получили награду!")
-                task_link = ""
                 return
             res_check = check(chanel_id, c.message.chat.id)
             if res_check == 1:
                 users[str(c.message.chat.id)]["balance"] += 0.20
                 users[str(c.message.chat.id)]["tasks"].append(chanel_id)
-                tasks[task_link][1] += 1
-                if tasks[task_link][1] >= int(tasks[task_link][2]):
-                    tasks.pop(task_link)
+                tasks[c.data][1] += 1
+                if tasks[c.data][1] >= int(tasks[c.data][2]):
+                    tasks.pop(c.data)
                 with open("users.json", "w") as json_file:
                     json.dump(users, json_file)
                 with open("tasks.json", "w") as tasks_file:
                     json.dump(tasks, tasks_file)
                 bot.send_message(c.message.chat.id,
                                  "Ваша подписка на канал была засчитана. 💵 Вам было начислено 0.20руб! 💵")
-                task_link = ""
                 user_tasks = users[str(c.message.chat.id)]["tasks"]
+                try:
+                    users[users[str(c.message.chat.id)]["invited"]]["balance"] += 0.02
+                except KeyError:
+                    pass
                 for elem in tasks:
                     if not tasks[elem][0] in user_tasks and not tasks[elem][0] in users[str(c.message.chat.id)][
                         "skipped_tasks"]:
                         task_link = elem
                         try:
-                            a = str(bot.get_chat_member(chat_id=int(tasks[task_link][0]), user_id=5355339065).status)
+                            a = str(bot.get_chat_member(chat_id=int(tasks[task_link][0]), user_id=5113897551).status)
                             break
                         except telebot.apihelper.ApiTelegramException:
                             task_link = ""
@@ -88,7 +98,7 @@ def inlin(c):
                 # клавиатура
                 task_keyboard = types.InlineKeyboardMarkup(row_width=2)
                 link = types.InlineKeyboardButton(text='Перейти к каналу', url=task_link)
-                check_button = types.InlineKeyboardButton(text="Проверить подписку", callback_data="check")
+                check_button = types.InlineKeyboardButton(text="Проверить подписку", callback_data=task_link)
                 skip_button = types.InlineKeyboardButton(text="Пропустить задание🔃", callback_data="skip")
                 task_keyboard.add(link, check_button, skip_button)
                 bot.send_message(c.message.chat.id,
@@ -97,16 +107,11 @@ def inlin(c):
                 return
             elif res_check == 0:
                 bot.send_message(c.message.chat.id, "⛔️ Вы не подписались на канал! ⛔️")
-        elif c.data == "skip":
-            if not tasks[task_link][0] in users[str(str(c.message.chat.id))]["skipped_tasks"] and not \
-                    tasks[task_link][0] in users[str(str(c.message.chat.id))]["tasks"]:
-                users[str(c.message.chat.id)]["skipped_tasks"].append(tasks[task_link][0])
-                bot.send_message(c.message.chat.id, "Задание успешно пропущено!")
-            else:
-                bot.send_message(c.message.chat.id, "Вы уже выполнили/пропустили это задание!")
-        task_link = ""
+                return
+
+        # task_link = ""
     except Exception as ex:
-        task_link = ""
+        # task_link = ""
         print(ex)
         try:
             bot.send_message(c.message.chat.id, "Произошла ошибка.")
@@ -131,17 +136,19 @@ def send_welcome(message):
                 "tasks": [],
                 "or_tasks": 0,
                 "skipped_tasks": [],
-                "referals": []
+                "referals": [],
+                "invited": None
             }
             # если реферал
             if " " in message.text:
                 referrer_candidate = message.text.split()[1]
-                if not str(referrer_candidate) in users:
+                if not str(referrer_candidate) in users or referrer_candidate == message.chat.id:
                     return
                 try:
                     referrer = int(referrer_candidate)
-                    users[str(referrer)]["referals"].append(referrer)
+                    users[str(referrer)]["referals"].append(message.chat.id)
                     users[str(referrer)]["balance"] += 0.02
+                    users[str(message.chat.id)]["invited"] = referrer
                 except ValueError:
                     pass
         bot.send_message(message.chat.id,
@@ -170,7 +177,8 @@ def main(message):
                 "tasks": [],
                 "or_tasks": 0,
                 "skipped_tasks": [],
-                "referals": []
+                "referals": [],
+                "invited": None
             }
         global status
         global num
@@ -257,7 +265,7 @@ def main(message):
             # клавиатура
             task_keyboard = types.InlineKeyboardMarkup(row_width=2)
             link = types.InlineKeyboardButton(text='Перейти к каналу', url=task_link)
-            check_button = types.InlineKeyboardButton(text="Проверить подписку", callback_data="check")
+            check_button = types.InlineKeyboardButton(text="Проверить подписку", callback_data=task_link)
             skip_button = types.InlineKeyboardButton(text="Пропустить задание🔃", callback_data="skip")
             task_keyboard.add(link, check_button, skip_button)
             bot.send_message(message.chat.id,
@@ -267,10 +275,13 @@ def main(message):
             bot.send_message(message.chat.id, "‼Что бы добавить свой канал в раскрутку напишите админу: @earleyn_on"
                                               "(Не раскручиваем 18+🔞)", reply_markup=ads)
         elif message.text == "👥 Рефералы":
+            from_refs = 0
+            for elem in users[str(message.chat.id)]["referals"]:
+                from_refs += len(users[str(elem)]["tasks"]) * 0.02
             bot.send_message(message.chat.id,
-                             "👤 Ваша реферальная ссылка:\n\nhttps://t.me/Actioncore_bot?start={}\n\n👥 Кол-во "
+                             "👤 Ваша реферальная ссылка:\n\nt.me/Actioncore_bot?start={}\n\n👥 Кол-во "
                              "рефералов: {}\n💸 Заработок с рефералов : {}₽".format(message.chat.id, len(users[str(
-                                 message.chat.id)]["referals"]), len(users[str(
+                                 message.chat.id)]["referals"]), from_refs + len(users[str(
                                  message.chat.id)]["referals"]) * 0.02))
         elif message.text == "💵 Баланс":
             bot.send_message(message.chat.id, "🏦 Общий баланс: {} \n"
